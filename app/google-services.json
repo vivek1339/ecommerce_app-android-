@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "34328054612",
+    "firebase_url": "https://begin0-d8003.firebaseio.com",
+    "project_id": "begin0-d8003",
+    "storage_bucket": "begin0-d8003.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34328054612:android:7f3d5e402b05cdcf",
+        "android_client_info": {
+          "package_name": "com.example.vivekshashank.begin0"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "34328054612-5cqi11102jsm5pkhl3fcon6u49puhtqh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.vivekshashank.begin0",
+            "certificate_hash": "516ba2575869e7828b02f92860e8f9436fbb7356"
+          }
+        },
+        {
+          "client_id": "34328054612-2figcqsijk6b8d6r0cq42qf28tu2ci23.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.vivekshashank.begin0",
+            "certificate_hash": "bdeea4072233a6d7b3e2dd2e35f9d905a1e3d592"
+          }
+        },
+        {
+          "client_id": "34328054612-omgcsmn8ornl3742pcbv6tf1j6158h66.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAL-tzxuUVg6RWn4OiLtpiHuZRtVgFlizk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "34328054612-omgcsmn8ornl3742pcbv6tf1j6158h66.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

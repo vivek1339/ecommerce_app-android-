@@ -1,0 +1,368 @@
+new DownloadImageTask((ImageView) findViewById(R.id.imageView1))
+            .execute("http://java.sogeti.nl/JavaBlog/wp-content/uploads/2009/04/android_icon_256.png");
+
+public void onClick(View v) {
+    startActivity(new Intent(this, IndexActivity.class));
+    finish();
+
+}
+
+private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+    ImageView bmImage;
+
+    public DownloadImageTask(ImageView bmImage) {
+        this.bmImage = bmImage;
+    }
+
+    protected Bitmap doInBackground(String... urls) {
+        String urldisplay = urls[0];
+        Bitmap mIcon11 = null;
+        try {
+            InputStream in = new java.net.URL(urldisplay).openStream();
+            mIcon11 = BitmapFactory.decodeStream(in);
+        } catch (Exception e) {
+            Log.e("Error", e.getMessage());
+            e.printStackTrace();
+        }
+        return mIcon11;
+    }
+
+    protected void onPostExecute(Bitmap result) {
+        bmImage.setImageBitmap(result);
+    }
+}
+
+
+-------------------------------------------------------------------------------------------
+Glide.with(context).
+        load(url)
+        .listener(new RequestListener<String, GlideDrawable>() {
+            @Override
+            public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                progressBar.setVisibility(View.GONE);
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                progressBar.setVisibility(View.GONE);
+                return false;
+            }
+        })
+        .crossFade(1000)
+        .into(imageView);
+
+
+        -----------------------------------------------------------------------------------------------------
+        import android.app.ProgressDialog;
+        import android.content.Context;
+        import android.content.Intent;
+        import android.net.ConnectivityManager;
+        import android.net.wifi.p2p.WifiP2pManager;
+        import android.support.annotation.NonNull;
+        import android.support.design.widget.Snackbar;
+        import android.support.v7.app.AppCompatActivity;
+        import android.os.Bundle;
+        import android.text.TextUtils;
+        import android.util.Log;
+        import android.view.View;
+        import android.widget.Button;
+        import android.widget.EditText;
+        import android.widget.ProgressBar;
+        import android.widget.TextView;
+        import android.widget.Toast;
+
+        import com.google.android.gms.auth.api.signin.GoogleSignIn;
+        import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+        import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+        import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+        import com.google.android.gms.common.SignInButton;
+        import com.google.android.gms.common.api.ApiException;
+        import com.google.android.gms.tasks.OnCompleteListener;
+        import com.google.android.gms.tasks.Task;
+        import com.google.firebase.auth.AuthCredential;
+        import com.google.firebase.auth.AuthResult;
+        import com.google.firebase.auth.FirebaseAuth;
+        import com.google.firebase.auth.FirebaseUser;
+        import com.google.firebase.auth.GoogleAuthProvider;
+
+        public class login extends AppCompatActivity
+        {
+            TextView tv1,tv2,fpswd;
+            EditText email,pswd;
+            FirebaseAuth auth;
+            String nav,Email,Pswd;
+            ProgressDialog progress;
+            GoogleSignInOptions gso;
+            final static private int RC_SIGN_IN=9001;
+            protected GoogleSignInClient mGoogleSignInClient;
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                setContentView(R.layout.login);
+                gso= new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN) .requestIdToken(getString(R.string.default_web_client_id))
+                        .requestEmail().build();
+                mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+                SignInButton signInButton = (SignInButton) findViewById(R.id.gauth);
+                signInButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        loggingin();
+                    }
+                });
+            }
+            private void loggingin() {
+                mGoogleSignInClient = GoogleSignIn.getClient(this, gso.DEFAULT_GAMES_SIGN_IN);
+                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+                startActivityForResult(signInIntent, RC_SIGN_IN);
+            }
+
+            @Override
+            public void onActivityResult(int requestCode, int resultCode, Intent data) {
+                super.onActivityResult(requestCode, resultCode, data);
+
+                if (requestCode == RC_SIGN_IN) {
+                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                    try {
+                        GoogleSignInAccount account = task.getResult(ApiException.class);
+                        firebaseAuthWithGoogle(account);
+                    } catch (ApiException e) {
+                        Toast.makeText(this,e.toString(),Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+                AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+                auth.signInWithCredential(credential)
+                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    FirebaseUser user = auth.getCurrentUser();
+                                } else {
+                                    Snackbar.make(findViewById(R.id.activity_main), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            }
+              /*  setContentView(R.layout.activity_login);
+               tv1=(TextView)findViewById(R.id.tv1);
+                progress = new ProgressDialog(this);
+                progress.setTitle("Loading");
+                progress.setMessage("Wait while loading...");
+                progress.setCancelable(false);
+                fpswd=(TextView)findViewById(R.id.fpswd);
+                email=(EditText)findViewById(R.id.email);
+                pswd=(EditText)findViewById(R.id.pswd);
+                auth = FirebaseAuth.getInstance();
+                fpswd.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        progress.show();
+                        Email=email.getText().toString();
+                        if(TextUtils.isEmpty(Email))
+                        {
+                            progress.dismiss();
+                            Toast.makeText(login.this, "email blank",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                        else
+                        {
+                            FirebaseAuth auth = FirebaseAuth.getInstance();
+                            String emailAddress =Email;
+
+                            auth.sendPasswordResetEmail(emailAddress)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+
+                                             // disable dismiss by tapping outside of the dialog
+
+                                            if (task.isSuccessful()) {
+
+                                                progress.dismiss();
+                                                Toast.makeText(login.this, "password reset email sent to registered email",
+                                                        Toast.LENGTH_LONG).show();
+                                            }
+                                            else
+                                            {
+                                                progress.dismiss();
+                                                Toast.makeText(login.this, "the email is not registered please signup to continue",
+                                                        Toast.LENGTH_LONG).show();
+
+                                            }
+                                        }
+                                    });
+                        }
+
+                    }
+                });
+                tv1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent=new Intent(login.this,signup.class);
+                        startActivity(intent);
+                    }
+                });
+
+                    }
+            public void login(View view)
+            {
+
+                Pswd=pswd.getText().toString();
+                Email=email.getText().toString();
+                if(TextUtils.isEmpty(Email))
+                {
+
+                    Toast.makeText(login.this, "email is blank",
+                            Toast.LENGTH_LONG).show();
+                }
+                else if(TextUtils.isEmpty(Pswd))
+                {
+
+                    Toast.makeText(login.this, "password is blank",
+                            Toast.LENGTH_LONG).show();
+                }
+                else
+                {
+                    ConnectivityManager cm=(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+                    if(cm!=null) {
+                    signin();
+                }
+                else
+                    {
+                        Toast.makeText(login.this,"no internet connection",Toast.LENGTH_LONG).show();
+                    }
+
+
+
+                }
+            }
+
+            private void signin()
+            {
+                progress.show();
+                String Email=email.getText().toString();
+                String Pswd=pswd.getText().toString();
+                auth.signInWithEmailAndPassword(Email,Pswd).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+
+                        if (task.isSuccessful()) {
+                            progress.dismiss();
+                            // Sign in success, update UI with the signed-in user's information
+                            Toast.makeText(login.this, "Authentication Successful.",
+                                    Toast.LENGTH_SHORT).show();
+                            Intent intent=new Intent(login.this,MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            progress.dismiss();
+                            // If sign in fails, display a message to the user.
+
+                            Toast.makeText(login.this, "id or password incorrect",
+                                    Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+
+                 }
+                );
+
+
+
+        */
+            }
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+<RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="334dp"
+                android:layout_height="45dp"
+                android:layout_alignLeft="@+id/desc"
+                android:layout_alignStart="@+id/desc"
+                android:layout_centerVertical="true"
+                android:text="TextView"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.471" />
+
+
+        </RelativeLayout>
+
+        --------------------------------------------------------------------------------------------------------------------
+        <?xml version="1.0" encoding="utf-8"?>
+        <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_margin="20dp">
+
+            <RelativeLayout
+                android:layout_width="355dp"
+                android:layout_height="wrap_content">
+
+
+                <TextView
+                    android:id="@+id/price"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/name"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="10dp"
+                    android:text="price goes here" />
+
+
+                <ImageView
+                    android:id="@+id/image"
+                    android:layout_width="30dp"
+                    android:layout_height="160dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="10dp"
+                    android:scaleType="fitCenter" />
+
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/image"
+                    android:breakStrategy="balanced"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="10dp"
+                    android:text="name goes here" />
+
+                <Button
+                    android:id="@+id/delete"
+                    style="@style/FirebaseUI.Button.AccountChooser.FacebookButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/image"
+                    android:layout_marginEnd="34dp"
+                    android:layout_marginRight="34dp"
+                    android:layout_marginTop="17dp"
+                    android:onClick="delete"
+                    android:text="remove item" />
+            </RelativeLayout>
+
+        </android.support.v7.widget.CardView>
